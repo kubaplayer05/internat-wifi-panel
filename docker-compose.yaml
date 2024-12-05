@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   mariadb:
-    image: mariadb:latest
+    build:
+      context: .
+      dockerfile: docker/db.Dockerfile
     container_name: mariadb
     environment:
       MYSQL_DATABASE: ${DB}
@@ -13,6 +15,21 @@ services:
       - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/next.Dockerfile
+    container_name: app
+    environment:
+      - DB=${DB}
+      - USER=${USER}
+      - PASSWORD=${PASSWORD}
+      - ROOT_PASSWORD=${ROOT_PASSWORD}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mariadb
 
 volumes:
   mariadb_data:
